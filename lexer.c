@@ -2,9 +2,7 @@
 #include "ctype.h"
 #include "string.h"
 
-#define MAX_LENGTH 254
-
-int getToken(void);
+unsigned int getToken(void);
 
 void interpret(char *line);
 
@@ -19,15 +17,16 @@ enum tokenType {
 };
 char *commands[] = {"input", "print", "let", "if", "goto"};
 char *token_pointer; // глобальный указатель на текущий адрес символа
-char currentToken[5];
+char arrayToken[5]; // содержание токена
+int basicLineNumber[100]; // номер строки в BASIC
 
-int getToken(void) {
+unsigned int getToken(void) {
     if (*token_pointer == '\n' || *token_pointer == '\0') return E_O_L; // провекра на конец строки
     while (isGap(*token_pointer)) ++token_pointer;
-    if (isdigit(*token_pointer)) {
+    if (isdigit(*token_pointer)) { // число
         unsigned int i = 0;
         while (!isSomething(*(token_pointer + 1))) {
-            currentToken[i] = *token_pointer;
+            arrayToken[i] = *token_pointer;
             ++i;
             ++token_pointer;
         }
@@ -35,6 +34,7 @@ int getToken(void) {
         return DIGIT;
     }
     if (strchr("+-*/=()", *token_pointer)) {
+        arrayToken[0] = *token_pointer;
         ++token_pointer;
         return OPERATOR;
     }
@@ -42,11 +42,11 @@ int getToken(void) {
         if (isalpha(*(token_pointer + 1))) { // команда
             unsigned int i = 0;
             while (isalpha(*(token_pointer))) {
-                currentToken[i] = *token_pointer;
+                arrayToken[i] = *token_pointer;
                 ++i;
                 ++token_pointer;
             }
-            if (haveCommand(currentToken)) {
+            if (haveCommand(arrayToken)) {
                 ++token_pointer;
                 return COMMAND;
             } else return 404;
@@ -55,21 +55,7 @@ int getToken(void) {
             return VARIABLE;
         }
     }
-
     return 404; // ошибка
-}
-
-void execute(char *fileName) {
-    FILE *file;
-    char str[MAX_LENGTH];
-    char *str_pointer;
-    file = fopen(fileName, "r");
-    if (file == NULL) perror("Error in opening file");
-    while (1) {
-        str_pointer = fgets(str, sizeof(str), file);
-        if (str_pointer == NULL) break;
-        interpret(str);
-    }
 }
 
 int isGap(char symbol) {  // пробел
@@ -84,9 +70,13 @@ int isSomething(char symbol) {
 
 void interpret(char *line) {
     token_pointer = line;
-    for (int i = 0; i < 11; ++i) {
-        printf("%d\n", getToken());
-    }
+    unsigned int currentToken, i = 0;
+    do {
+        currentToken = getToken();
+        /*
+         * ?????????? WHAT IS THE NEXT STEP ???????????????
+         */
+    } while (currentToken != E_O_L);
 }
 
 int haveCommand(const char *input) {
