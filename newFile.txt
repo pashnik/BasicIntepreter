@@ -1,1 +1,1 @@
-a 1 abc abc aa aa
+1 2 3 input a ab goto 13 14
