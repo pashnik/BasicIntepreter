@@ -36,7 +36,6 @@ int getToken(void) {
         ++token_pointer;
         return OPERATOR;
     }
-
     if (isalpha(*token_pointer)) { // команда или переменная
         if (isalpha(*(token_pointer + 1))) { // команда
             unsigned int i = 0;
