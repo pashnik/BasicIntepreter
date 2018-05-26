@@ -17,7 +17,6 @@ int haveCommand(const char *input);
 enum tokenType {
     DIGIT, OPERATOR, VARIABLE, COMMAND, E_O_L
 };
-
 char *commands[] = {"input", "print", "let", "if", "goto"};
 char *token_pointer; // глобальный указатель на текущий адрес символа
 char currentToken[5];
