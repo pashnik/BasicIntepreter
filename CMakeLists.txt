@@ -3,4 +3,4 @@ project(BasicIntepreter C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(BasicIntepreter main.c lexer.c interpreter.h interpreter.c)
+add_executable(BasicIntepreter main.c lexer.c interpreter.h interpreter.c arithmetics.c interpreter.h)

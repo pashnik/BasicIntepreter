@@ -1,1 +1,5 @@
-10 20 30 input a ab goto 13 14
+10 put a = 50
+20 put b = 10
+30 let c = a * 2
+40 let d = b + 34
+50 print a b c d

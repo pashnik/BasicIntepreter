@@ -1,1 +1,1 @@
-void execute(char *r_s);
+void execute(char *fileName);
