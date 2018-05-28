@@ -1,5 +1,4 @@
-10 put a = 50
-20 put b = 10
-30 let c = a * 2
-40 let d = b + 34
-50 print a b c d
+10 input "Напиши свой взораст ", f
+20 let a = f + 30
+30 print "Через 30 лет тебе будет:"
+40 print "#" a

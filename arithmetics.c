@@ -13,3 +13,4 @@ int doArithmetic(int firstDigit, int secondDigit, const char *operator) {
     }
     return 0;
 }
+

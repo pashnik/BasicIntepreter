@@ -71,7 +71,9 @@ unsigned int getToken(void) {
             if (haveCommand(tokenContent)) {
                 ++token_pointer;
                 return COMMAND;
-            } else return 404;
+            } else {
+                return 404;
+            }
         } else { // переменная
             var = token_pointer;
             ++token_pointer;
@@ -79,13 +81,7 @@ unsigned int getToken(void) {
         }
     }
     if (*token_pointer == '"') {
-        token_pointer++;
-        unsigned int i = 0;
-        while (*token_pointer != '"') {
-            tokenContent[i] = *token_pointer;
-            ++i;
-            ++token_pointer;
-        }
+        ++token_pointer;
         return QUOTES;
     }
     return 404; // ошибка
@@ -97,7 +93,7 @@ int isGap(char symbol) {  // пробел
 }
 
 int isSomething(char symbol) { // разделители
-    if (strchr("()=/*+- ", symbol) || strchr("", symbol)) return 1;
+    if (strchr("()=/*+- \n", symbol) || strchr("", symbol)) return 1;
     return 0;
 }
 
@@ -115,6 +111,7 @@ void interpret(char *line) {
     } else {
         whichCommand();
     }
+    memset(tokenContent, 0, sizeof(tokenContent));
 }
 
 int haveCommand(const char *input) {
@@ -141,9 +138,12 @@ int comparison(char *first, const char *second) {
 }
 
 void whichCommand(void) { // определение команды и выполнение действий
-    unsigned int command = 0;
+    int command = 0;
     for (unsigned int i = 0; i < 6; ++i) {
-        if (comparison(tokenContent, commands[i])) command = i;
+        if (comparison(tokenContent, commands[i])) {
+            command = i;
+            break;
+        }
     }
     switch (command) {
         case 0:
@@ -170,27 +170,47 @@ void whichCommand(void) { // определение команды и выпол
 }
 
 void com_input(void) {
-
-}
-
-void com_print(void) {
-    unsigned currentToken = getToken();
-    if (currentToken == QUOTES) { // строка в кавычках
-        currentToken = getToken();
-        while (currentToken != QUOTES) {
-            printf("%c", *tokenContent);
-            currentToken = getToken();
+    unsigned currentToken;
+    currentToken = getToken();
+    if (currentToken == QUOTES) {
+        while (*token_pointer != '"') {
+            printf("%c", *token_pointer);
+            ++token_pointer;
         }
-    } else { // переменные
-        if (currentToken != VARIABLE) perror("Must have a variable");
+        ++token_pointer;
+        if (*token_pointer != ',') perror("Must have ,");
         else {
-            while (currentToken != E_O_L) {
-                int value = getValue(var);
-                printf("%d ", value);
-                currentToken = getToken();
+            ++token_pointer;
+            currentToken = getToken();
+            if (currentToken != VARIABLE) perror("Must be a Variable");
+            else {
+                int number;
+                scanf("%d", &number);
+                variables[(int) *var - 'a'] = number;
             }
         }
     }
+}
+
+void com_print(void) {
+    unsigned currentToken;
+    do {
+        currentToken = getToken();
+        if (currentToken == QUOTES) { // строка
+            while (*token_pointer != '"') {
+                if (*token_pointer == '#') {
+                    printf("\n");
+                } else {
+                    printf("%c", *token_pointer);
+                }
+                ++token_pointer;
+            }
+            ++token_pointer;
+        }
+        if (currentToken == VARIABLE) {
+            printf("%d", variables[(int) *var - 'a']);
+        }
+    } while (currentToken != E_O_L);
 }
 
 void com_let(void) {
@@ -242,7 +262,8 @@ void com_put(void) {
             else {
                 int digit = atoi(tokenContent);
                 variables[(int) *mainVar - 'a'] = digit;
-                if (getToken() != E_O_L) perror("MUST BE THE END OF LINE");
+                currentToken = getToken();
+                if (currentToken != E_O_L) perror("MUST BE THE END OF LINE");
             }
         }
     }
