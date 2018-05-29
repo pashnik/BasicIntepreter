@@ -1,10 +1,13 @@
 #include <ctype.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "stdio.h"
-#include "stdlib.h"
 #include "stack.h"
 
 #define ISNUMBER '0' // сигнал, что обнаружено число
+#define is_operator(c) ((c) == '+' || (c) == '-' || (c) == '/' || (c) == '*' || (c) == '!' || (c) == '%' || (c) == '=')
+
+int prioritization(char symbol);
 
 int doArithmetic(int firstDigit, int secondDigit, const char *operator) {
     switch (*operator) {
@@ -23,29 +26,64 @@ int doArithmetic(int firstDigit, int secondDigit, const char *operator) {
 }
 
 
-void toOPN(char *line) { // преобразование выражений в обратную польскую запись (АЛГОРИТМ СОРТИРОВОЧНОЙ СТАНЦИИ)
-
+char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВОЧНОЙ СТАНЦИИ)
+    char outputLine[100] = {0}; // выходная строка
+    char *outputLine_pointer = outputLine;
+    const char *currentLine = line;
+    char sc;
+    char c;
+    char *strEnd = (char *) (line + strlen(line));
+    while (currentLine < strEnd) {
+        c = *currentLine;
+        if (c != ' ') {
+            if (isdigit(c)) {
+                *outputLine_pointer = c;
+                ++outputLine_pointer;
+            } else if (is_operator(c)) {
+                while (1) {
+                    sc = pop_char();
+                    if (is_operator(sc) && (prioritization(c)) <= (prioritization(sc))) {
+                        *outputLine_pointer = sc;
+                        ++outputLine_pointer;
+                    } else break;
+                }
+                push_char(sc);
+                push_char(c);
+            } else if (c == '(') {
+                push_char(c);
+            } else if (c == ')') {
+                while (1) {
+                    sc = pop_char();
+                    if (sc == '(') {
+                        break;
+                    } else {
+                        *outputLine_pointer = sc;
+                        ++outputLine_pointer;
+                    }
+                }
+            }
+        }
+        ++currentLine;
+    }
+    while (!isEmpty_char()) {
+        sc = pop_char();
+        *outputLine_pointer = sc;
+        ++outputLine_pointer;
+    }
+    return &outputLine[0];
 }
 
-void calculateOPN(char *line) { // разбить на две функции (АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫРАЖЕНИЙ ОБРАТНОЙ ПОЛЬСКОЙ ЗАПСИИ)
+void calculate_RPN(char *line) { // (АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫРАЖЕНИЙ ОБРАТНОЙ ПОЛЬСКОЙ ЗАПСИИ)
     int type;
     int op2 = 0;
-    char charBuffer[100] = {0};
     while (*line != 0) {
         if (*line == ' ') ++line;
         if (isdigit(*line)) {
-            unsigned int i = 0;
-            while (isdigit(*line)) {
-                charBuffer[i] = *line;
-                ++line;
-                ++i;
-            }
             type = ISNUMBER;
         } else type = *line;
         switch (type) {
             case ISNUMBER:
-                push(atoi(charBuffer));
-                memset(charBuffer, 0, sizeof(charBuffer));
+                push((atoi(line)));
                 break;
             case '+':
                 push(pop() + pop());
@@ -70,4 +108,18 @@ void calculateOPN(char *line) { // разбить на две функции (А
         ++line;
     }
     printf("%d", pop());
+}
+
+int prioritization(const char symbol) {
+    switch (symbol) {
+        case '*':
+        case '/':
+            return 2;
+        case '+':
+        case '-':
+            return 1;
+        default:
+            break;
+    }
+    return 0;
 }
