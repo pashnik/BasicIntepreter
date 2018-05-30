@@ -5,13 +5,11 @@
 
 unsigned int getToken(void);
 
-int doArithmetic(int firstDigit, int secondDigit, const char *operator);
+int doArithmetic(char *line);
 
 void interpret(char *line);
 
 void whichCommand(void);
-
-int getValue(const char *symbol);
 
 int isSomething(char symbol);
 
@@ -29,15 +27,14 @@ void com_if(void);
 
 void com_goto(void);
 
-void com_put(void);
 
 enum tokenType {
     DIGIT, OPERATOR, VARIABLE, COMMAND, E_O_L, QUOTES
 };
-char *commands[] = {"input", "print", "let", "if", "goto", "put"};
+char *commands[] = {"input", "print", "let", "if", "goto"};
 char *token_pointer; // глобальный указатель на текущий адрес символа
-char *var; // указатель на переменную
-char *oper; // указатель на оператор
+char var; // переменная
+char oper; // оператор
 char tokenContent[100]; // содержание токена (число или команда)
 int basicLineNumber[100]; // номер строки в BASIC
 int variables[26] = {0};
@@ -56,7 +53,7 @@ unsigned int getToken(void) {
         return DIGIT;
     }
     if (strchr("+-*/=", *token_pointer)) {
-        oper = token_pointer;
+        oper = *token_pointer;
         ++token_pointer;
         return OPERATOR;
     }
@@ -75,7 +72,7 @@ unsigned int getToken(void) {
                 return 404;
             }
         } else { // переменная
-            var = token_pointer;
+            var = *token_pointer;
             ++token_pointer;
             return VARIABLE;
         }
@@ -115,7 +112,7 @@ void interpret(char *line) {
 }
 
 int haveCommand(const char *input) {
-    for (int j = 0; j < 6; ++j) {
+    for (int j = 0; j < 5; ++j) {
         unsigned int sum = 0;
         char *current_command = commands[j];
         for (int i = 0; i < strlen(current_command); ++i) {
@@ -126,8 +123,8 @@ int haveCommand(const char *input) {
     return 0;
 }
 
-int getValue(const char *symbol) { // получение значения переменной по имени
-    return variables[(int) *symbol - 'a'];
+int getValue(char symbol) { // получение значения переменной по имени
+    return variables[(int) symbol - 'a'];
 }
 
 int comparison(char *first, const char *second) {
@@ -161,9 +158,6 @@ void whichCommand(void) { // определение команды и выпол
         case 4:
             com_goto();
             break;
-        case 5:
-            com_put();
-            break;
         default:
             break;
     }
@@ -171,25 +165,31 @@ void whichCommand(void) { // определение команды и выпол
 
 void com_input(void) {
     unsigned currentToken;
-    currentToken = getToken();
-    if (currentToken == QUOTES) {
-        while (*token_pointer != '"') {
-            printf("%c", *token_pointer);
-            ++token_pointer;
-        }
-        ++token_pointer;
-        if (*token_pointer != ',') perror("Must have ,");
-        else {
-            ++token_pointer;
-            currentToken = getToken();
-            if (currentToken != VARIABLE) perror("Must be a Variable");
-            else {
-                int number;
-                scanf("%d", &number);
-                variables[(int) *var - 'a'] = number;
+    do {
+        currentToken = getToken();
+        if (currentToken == QUOTES) {
+            while (*token_pointer != '"') {
+                printf("%c", *token_pointer);
+                ++token_pointer;
             }
+            ++token_pointer;
+            if (*token_pointer != ',') perror("Must have ,");
+            else {
+                ++token_pointer;
+                currentToken = getToken();
+                if (currentToken != VARIABLE) perror("Must be a Variable");
+                else {
+                    int number;
+                    scanf("%d", &number);
+                    variables[(int) var - 'a'] = number;
+                }
+            }
+        } else if (currentToken == VARIABLE) {
+            int number;
+            scanf("%d", &number);
+            variables[(int) var - 'a'] = number;
         }
-    }
+    } while (currentToken != E_O_L);
 }
 
 void com_print(void) {
@@ -208,7 +208,7 @@ void com_print(void) {
             ++token_pointer;
         }
         if (currentToken == VARIABLE) {
-            printf("%d", variables[(int) *var - 'a']);
+            printf("%d", variables[(int) var - 'a']);
         }
     } while (currentToken != E_O_L);
 }
@@ -217,54 +217,19 @@ void com_let(void) {
     unsigned int currentToken = getToken();
     if (currentToken != VARIABLE) perror("Must be a variable");
     else {
-        char *mainVar = var;
+        char mainVar = var;
         getToken();
-        if (*oper != '=') perror("Must be an equal sign");
+        if (oper != '=') perror("Must be an equal sign");
         else {
-            currentToken = getToken();
-            if (currentToken != VARIABLE) perror("Must be a variable");
-            else {
-                char *first_var = var;
-                currentToken = getToken();
-                if (currentToken != OPERATOR) perror("Must be an operator");
-                else {
-                    char *op = oper;
-                    currentToken = getToken();
-                    if (currentToken != DIGIT) perror("Must be a digit");
-                    else {
-                        int second_digit = atoi(tokenContent);
-                        variables[(int) *mainVar - 'a'] = doArithmetic(getValue(first_var), second_digit, op);
-                        if (getToken() != E_O_L) perror("MUST BE THE END OF LINE");
-                    }
-                }
-            }
+            variables[(int) mainVar - 'a'] = doArithmetic(token_pointer);
         }
     }
 }
+
 
 void com_if(void) {
 }
 
 void com_goto(void) {
 
-}
-
-void com_put(void) {
-    unsigned int currentToken = getToken();
-    if (currentToken != VARIABLE) perror("Must be a variable");
-    else {
-        char *mainVar = var;
-        getToken();
-        if (*oper != '=') perror("Must be an equal sign");
-        else {
-            currentToken = getToken();
-            if (currentToken != DIGIT) perror("Must be a digit");
-            else {
-                int digit = atoi(tokenContent);
-                variables[(int) *mainVar - 'a'] = digit;
-                currentToken = getToken();
-                if (currentToken != E_O_L) perror("MUST BE THE END OF LINE");
-            }
-        }
-    }
 }

@@ -5,26 +5,21 @@
 #include "stack.h"
 
 #define ISNUMBER '0' // сигнал, что обнаружено число
+#define ISVAR 'a'
 #define is_operator(c) ((c) == '+' || (c) == '-' || (c) == '/' || (c) == '*' || (c) == '!' || (c) == '%' || (c) == '=')
 
 int prioritization(char symbol);
 
-int doArithmetic(int firstDigit, int secondDigit, const char *operator) {
-    switch (*operator) {
-        case '+':
-            return firstDigit + secondDigit;
-        case '-':
-            return firstDigit - secondDigit;
-        case '/':
-            return firstDigit / secondDigit;
-        case '*':
-            return firstDigit * secondDigit;
-        default:
-            break;
-    }
-    return 0;
-}
+char *shunting_yard(const char *line);
 
+int calculate_RPN(char *line);
+
+int getValue(char symbol);
+
+
+int doArithmetic(char *line) {
+    return calculate_RPN(shunting_yard(line));
+}
 
 char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВОЧНОЙ СТАНЦИИ)
     char outputLine[100] = {0}; // выходная строка
@@ -37,13 +32,28 @@ char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВО�
         c = *currentLine;
         if (c != ' ') {
             if (isdigit(c)) {
-                *outputLine_pointer = c;
+                while (isdigit(*currentLine)) {
+                    *outputLine_pointer = *currentLine;
+                    ++outputLine_pointer;
+                    ++currentLine;
+                }
+                *outputLine_pointer = ' ';
                 ++outputLine_pointer;
+                --currentLine;
+            } else if (isalpha(c)) {
+                *outputLine_pointer = *currentLine;
+                ++outputLine_pointer;
+                *outputLine_pointer = ' ';
+                ++outputLine_pointer;
+                ++currentLine;
+                --currentLine;
             } else if (is_operator(c)) {
                 while (1) {
                     sc = pop_char();
                     if (is_operator(sc) && (prioritization(c)) <= (prioritization(sc))) {
                         *outputLine_pointer = sc;
+                        ++outputLine_pointer;
+                        *outputLine_pointer = ' ';
                         ++outputLine_pointer;
                     } else break;
                 }
@@ -59,6 +69,8 @@ char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВО�
                     } else {
                         *outputLine_pointer = sc;
                         ++outputLine_pointer;
+                        *outputLine_pointer = ' ';
+                        ++outputLine_pointer;
                     }
                 }
             }
@@ -69,21 +81,37 @@ char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВО�
         sc = pop_char();
         *outputLine_pointer = sc;
         ++outputLine_pointer;
+        *outputLine_pointer = ' ';
+        ++outputLine_pointer;
     }
     return &outputLine[0];
 }
 
-void calculate_RPN(char *line) { // (АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫРАЖЕНИЙ ОБРАТНОЙ ПОЛЬСКОЙ ЗАПСИИ)
+int calculate_RPN(char *line) { //(АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫРАЖЕНИЙ ОБРАТНОЙ ПОЛЬСКОЙ ЗАПСИИ)
+    char charBuffer[100];
+    char newChar[100] = {0};
     int type;
     int op2 = 0;
     while (*line != 0) {
         if (*line == ' ') ++line;
-        if (isdigit(*line)) {
+        if (isalpha(*line)) {
+            type = ISVAR;
+        } else if (isdigit(*line)) {
+            unsigned int i = 0;
+            while (isdigit(*line)) {
+                newChar[i] = *line;
+                ++line;
+                ++i;
+            }
             type = ISNUMBER;
         } else type = *line;
         switch (type) {
+            case ISVAR:
+                push(getValue(*line));
+                break;
             case ISNUMBER:
-                push((atoi(line)));
+                push(atoi(newChar));
+                memset(newChar, 0, sizeof(newChar));
                 break;
             case '+':
                 push(pop() + pop());
@@ -102,12 +130,11 @@ void calculate_RPN(char *line) { // (АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫ�
                 } else perror("Div on zero");
                 break;
             default:
-                perror("Unknown command");
                 break;
         }
         ++line;
     }
-    printf("%d", pop());
+    return pop();
 }
 
 int prioritization(const char symbol) {
