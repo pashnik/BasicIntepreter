@@ -1,5 +1,2 @@
-10 input "Введите числа ", a b c
-20 let d = a + 10
-30 let f = b + 10
-40 let g = c + 10
-50 print d " " f " " g
+50 print "COME ON!"
+60 print "YES"
