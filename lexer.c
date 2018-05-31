@@ -27,17 +27,19 @@ void com_if(void);
 
 void com_goto(void);
 
+int getIndex(int lineNumber);
 
 enum tokenType {
     DIGIT, OPERATOR, VARIABLE, COMMAND, E_O_L, QUOTES
 };
+
 char *commands[] = {"input", "print", "let", "if", "goto"};
 char *token_pointer; // глобальный указатель на текущий адрес символа
 char var; // переменная
 char oper; // оператор
 char tokenContent[100]; // содержание токена (число или команда)
-int basicLineNumber[100]; // номер строки в BASIC
 int variables[26] = {0};
+extern int global_Index;
 
 unsigned int getToken(void) {
     if (*token_pointer == '\n' || *token_pointer == '\0') return E_O_L; // провекра на конец строки
@@ -96,11 +98,9 @@ int isSomething(char symbol) { // разделители
 
 void interpret(char *line) {
     token_pointer = line;
-    unsigned int currentToken = getToken(), i = 0;
+    unsigned int currentToken = getToken();
     if (currentToken != DIGIT) {  // проверка на номер строки
         perror("Wrong format");
-    } else {
-        basicLineNumber[i] = atoi(tokenContent);
     }
     currentToken = getToken();
     if (currentToken != COMMAND) { // после номера строки всегда идет команда
@@ -231,5 +231,11 @@ void com_if(void) {
 }
 
 void com_goto(void) {
-
+    unsigned int currentToken = getToken();
+    if (currentToken != DIGIT) perror("Must have a digit");
+    else {
+        int gotoIndex = getIndex(atoi(tokenContent));
+        if (gotoIndex == -1) perror("Don't");
+        global_Index = gotoIndex - 1;
+    }
 }
