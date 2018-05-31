@@ -1,7 +1,0 @@
-10 print "MY!" " "
-20 print "NAME" " "
-30 print "IS" " "
-40 goto 70
-50 print "IGOR" " "
-60 print "PASHA" " "
-70 print "YESS"

@@ -150,3 +150,16 @@ int prioritization(const char symbol) {
     }
     return 0;
 }
+
+int getComparisonSign(char symbol) {
+    switch (symbol) {
+        case '>':
+            return 1;
+        case '<':
+            return 2;
+        case '=':
+            return 4;
+        default:
+            return -1;
+    }
+}

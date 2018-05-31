@@ -29,12 +29,18 @@ void com_goto(void);
 
 int getIndex(int lineNumber);
 
+int getComparisonSign(char symbol);
+
+int isVarOrDigit(unsigned int currentToken);
+
+int getBoolRes(int intermediate, int firstValue, int secondValue);
+
 enum tokenType {
     DIGIT, OPERATOR, VARIABLE, COMMAND, E_O_L, QUOTES
 };
 
 char *commands[] = {"input", "print", "let", "if", "goto"};
-char *token_pointer; // глобальный указатель на текущий адрес символа
+char *token_pointer = NULL; // глобальный указатель на текущий адрес символа
 char var; // переменная
 char oper; // оператор
 char tokenContent[100]; // содержание токена (число или команда)
@@ -54,7 +60,7 @@ unsigned int getToken(void) {
         ++token_pointer;
         return DIGIT;
     }
-    if (strchr("+-*/=", *token_pointer)) {
+    if (strchr("+-*/=><", *token_pointer)) {
         oper = *token_pointer;
         ++token_pointer;
         return OPERATOR;
@@ -228,6 +234,24 @@ void com_let(void) {
 
 
 void com_if(void) {
+    unsigned int currentToken = getToken(), intermediate = 0;
+    int firstValue = 0, secondValue = 0;
+    firstValue = isVarOrDigit(currentToken);
+    if (firstValue < 0) perror("Must have variable or Digit");
+    currentToken = getToken();
+    if (currentToken == OPERATOR) {
+        while (currentToken == OPERATOR) {
+            intermediate += getComparisonSign(oper);
+            currentToken = getToken();
+        }
+    }
+    secondValue = isVarOrDigit(currentToken);
+    if (secondValue < 0) perror("Must have variable or Digit");
+    if (getBoolRes(intermediate, firstValue, secondValue)) {
+        currentToken = getToken();
+        if (currentToken != COMMAND) perror("Must be a command");
+        else com_goto();
+    }
 }
 
 void com_goto(void) {
@@ -237,5 +261,42 @@ void com_goto(void) {
         int gotoIndex = getIndex(atoi(tokenContent));
         if (gotoIndex == -1) perror("Don't");
         global_Index = gotoIndex - 1;
+    }
+}
+
+
+int isVarOrDigit(unsigned int currentToken) {
+    switch (currentToken) {
+        case VARIABLE:
+            return variables[(int) var - 'a'];
+        case DIGIT:
+            return atoi(tokenContent);
+        default:
+            return -1;
+    }
+}
+
+int getBoolRes(int intermediate, int firstValue, int secondValue) {
+    switch (intermediate) {
+        case 1:
+            if (firstValue > secondValue) return 1;
+            return 0;
+        case 2:
+            if (firstValue < secondValue) return 1;
+            return 0;
+        case 4:
+            if (firstValue == secondValue) return 1;
+            return 0;
+        case 5:
+            if (firstValue >= secondValue) return 1;
+            return 0;
+        case 6:
+            if (firstValue <= secondValue) return 1;
+            return 0;
+        case 3:
+            if (firstValue != secondValue) return 1;
+            return 0;
+        default:
+            return 0;
     }
 }

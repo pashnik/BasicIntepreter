@@ -11,7 +11,7 @@ char *loadedProgram[MAX_LINES];
 
 int labels[100] = {0};
 
-int global_Index; // индекс main цикла
+int global_Index; // индекс main loop
 
 unsigned int i = 0;
 
@@ -21,12 +21,13 @@ void execute(char *fileName) { // построчное считывание
     file = fopen(fileName, "r");
     if (file == NULL) perror("Error in opening file");
     while (1) {
-        str_pointer = (char *) malloc(MAX_LENGTH * sizeof(char));
+        str_pointer = (char *) malloc(MAX_LENGTH * sizeof(char) + 1);
         str_pointer = fgets(str_pointer, MAX_LENGTH, file);
         if (!str_pointer) break;
         loadedProgram[i] = str_pointer;
         i++;
     }
+    free(str_pointer);
 
     char bufferNumber[2];
     for (int l = 0; l < i; ++l) {
@@ -36,7 +37,7 @@ void execute(char *fileName) { // построчное считывание
         memset(bufferNumber, 0, sizeof(bufferNumber));
     }
 
-    for (global_Index = 0; global_Index < i; ++global_Index) {
+    for (global_Index = 0; global_Index < i; ++global_Index) { // main loop
         interpret(loadedProgram[global_Index]);
     }
 }
