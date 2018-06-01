@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "stdio.h"
 #include "ctype.h"
+#include "stack.h"
 #include "string.h"
 
 unsigned int getToken(void);
@@ -27,6 +28,12 @@ void com_if(void);
 
 void com_goto(void);
 
+void com_return();
+
+void com_gosub();
+
+void com_end(void);
+
 int getIndex(int lineNumber);
 
 int getComparisonSign(char symbol);
@@ -39,10 +46,11 @@ enum tokenType {
     DIGIT, OPERATOR, VARIABLE, COMMAND, E_O_L, QUOTES
 };
 
-char *commands[] = {"input", "print", "let", "if", "goto"};
+char *commands[] = {"input", "print", "let", "if", "goto", "end", "gosub", "return"};
 char *token_pointer = NULL; // глобальный указатель на текущий адрес символа
 char var; // переменная
 char oper; // оператор
+int line_number = 0;
 char tokenContent[100]; // содержание токена (число или команда)
 int variables[26] = {0};
 extern int global_Index;
@@ -108,6 +116,7 @@ void interpret(char *line) {
     if (currentToken != DIGIT) {  // проверка на номер строки
         perror("Wrong format");
     }
+    line_number = atoi((tokenContent));
     currentToken = getToken();
     if (currentToken != COMMAND) { // после номера строки всегда идет команда
         perror("Wrong format, must be a command");
@@ -118,7 +127,7 @@ void interpret(char *line) {
 }
 
 int haveCommand(const char *input) {
-    for (int j = 0; j < 5; ++j) {
+    for (int j = 0; j < 8; ++j) {
         unsigned int sum = 0;
         char *current_command = commands[j];
         for (int i = 0; i < strlen(current_command); ++i) {
@@ -142,7 +151,7 @@ int comparison(char *first, const char *second) {
 
 void whichCommand(void) { // определение команды и выполнение действий
     int command = 0;
-    for (unsigned int i = 0; i < 6; ++i) {
+    for (unsigned int i = 0; i < 8; ++i) {
         if (comparison(tokenContent, commands[i])) {
             command = i;
             break;
@@ -163,6 +172,15 @@ void whichCommand(void) { // определение команды и выпол
             break;
         case 4:
             com_goto();
+            break;
+        case 5:
+            com_end();
+            break;
+        case 6:
+            com_gosub();
+            break;
+        case 7:
+            com_return();
             break;
         default:
             break;
@@ -264,6 +282,25 @@ void com_goto(void) {
     }
 }
 
+void com_gosub() {
+    unsigned int currentToken = getToken();
+    if (currentToken != DIGIT) perror("Must have a digit");
+    else {
+        int goSubIndex = getIndex(atoi(tokenContent));
+        if (goSubIndex == -1) perror("NOOOO");
+        global_Index = goSubIndex - 1;
+        push_goSub(getIndex(line_number));
+    }
+}
+
+void com_return() {
+    int returnedIndex = pop_goSub();
+    global_Index = returnedIndex;
+}
+
+void com_end(void) {
+    global_Index = 404;
+}
 
 int isVarOrDigit(unsigned int currentToken) {
     switch (currentToken) {

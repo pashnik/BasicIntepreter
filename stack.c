@@ -8,6 +8,9 @@ int value[STACKVAL]; // стек для int
 int sp_char = 0;
 char char_value[STACKVAL]; // стек для char
 
+int sp_goSub = 0;
+int goSub_value[5]; // уровень вложенности
+
 void push(int number) {
     if (sp < STACKVAL) value[sp++] = number;
     else perror("Can't push, Stack is full");
@@ -32,4 +35,15 @@ char pop_char(void) {
 int isEmpty_char(void) {
     if (sp_char > 0) return 0;
     else return 1;
+}
+
+void push_goSub(int number) {
+    if (sp_goSub < 5) goSub_value[sp_goSub++] = number;
+    else perror("Can't push, Stack is full");
+}
+
+int pop_goSub(void) {
+    if (sp_goSub > 0) return goSub_value[--sp_goSub];
+    else perror("Can't pop, Stack is empty");
+    return 0;
 }

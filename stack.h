@@ -6,4 +6,8 @@ char pop_char(void);
 
 void push_char(char symbol);
 
+void push_goSub(int number);
+
+int pop_goSub(void);
+
 int isEmpty_char(void);
