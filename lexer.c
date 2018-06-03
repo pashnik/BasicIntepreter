@@ -3,44 +3,8 @@
 #include "ctype.h"
 #include "stack.h"
 #include "string.h"
-
-unsigned int getToken(void);
-
-int doArithmetic(char *line);
-
-void interpret(char *line);
-
-void whichCommand(void);
-
-int isSomething(char symbol);
-
-int isGap(char symbol);
-
-int haveCommand(const char *input);
-
-void com_input(void);
-
-void com_print(void);
-
-void com_let(void);
-
-void com_if(void);
-
-void com_goto(void);
-
-void com_return();
-
-void com_gosub();
-
-void com_end(void);
-
-int getIndex(int lineNumber);
-
-int getComparisonSign(char symbol);
-
-int isVarOrDigit(unsigned int currentToken);
-
-int getBoolRes(int intermediate, int firstValue, int secondValue);
+#include "lexer.h"
+#include "arithmetics.h"
 
 enum tokenType {
     DIGIT, OPERATOR, VARIABLE, COMMAND, E_O_L, QUOTES
@@ -177,7 +141,7 @@ void whichCommand(void) { // определение команды и выпол
             com_end();
             break;
         case 6:
-            com_gosub();
+            com_goSub();
             break;
         case 7:
             com_return();
@@ -282,7 +246,7 @@ void com_goto(void) {
     }
 }
 
-void com_gosub() {
+void com_goSub() {
     unsigned int currentToken = getToken();
     if (currentToken != DIGIT) perror("Must have a digit");
     else {

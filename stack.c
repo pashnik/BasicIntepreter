@@ -1,18 +1,18 @@
 #include <stdio.h>
 
-#define STACKVAL 100 // макисмальная длинна стека
+#define STACK_VAL 100 // макисмальная длинна стека
 
 int sp = 0;
-int value[STACKVAL]; // стек для int
+int value[STACK_VAL]; // стек для int
 
 int sp_char = 0;
-char char_value[STACKVAL]; // стек для char
+char char_value[STACK_VAL]; // стек для char
 
 int sp_goSub = 0;
 int goSub_value[5]; // уровень вложенности
 
 void push(int number) {
-    if (sp < STACKVAL) value[sp++] = number;
+    if (sp < STACK_VAL) value[sp++] = number;
     else perror("Can't push, Stack is full");
 }
 
@@ -23,7 +23,7 @@ int pop(void) {
 }
 
 void push_char(char symbol) {
-    if (sp_char < STACKVAL) char_value[sp_char++] = symbol;
+    if (sp_char < STACK_VAL) char_value[sp_char++] = symbol;
     else perror("Can't push, Stack is full");
 }
 

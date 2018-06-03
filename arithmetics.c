@@ -3,31 +3,26 @@
 #include <stdlib.h>
 #include "stdio.h"
 #include "stack.h"
+#include "arithmetics.h"
+#include "lexer.h"
 
-#define ISNUMBER '0' // сигнал, что обнаружено число
-#define ISVAR 'a'
+#define IS_NUMBER '0' // сигнал, что обнаружено число
+#define IS_VARIABLE 'a'
 #define is_operator(c) ((c) == '+' || (c) == '-' || (c) == '/' || (c) == '*' || (c) == '!' || (c) == '%' || (c) == '=')
-
-int prioritization(char symbol);
-
-char *shunting_yard(const char *line);
-
-int calculate_RPN(char *line);
-
-int getValue(char symbol);
 
 
 int doArithmetic(char *line) {
     return calculate_RPN(shunting_yard(line));
 }
 
-char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВОЧНОЙ СТАНЦИИ)
+char *shunting_yard(char *line) { // (АЛГОРИТМ СОРТИРОВОЧНОЙ СТАНЦИИ)
     char outputLine[100] = {0}; // выходная строка
+    char *out = outputLine;
     char *outputLine_pointer = outputLine;
     const char *currentLine = line;
     char sc;
     char c;
-    char *strEnd = (char *) (line + strlen(line));
+    char *strEnd = line + strlen(line);
     while (currentLine < strEnd) {
         c = *currentLine;
         if (c != ' ') {
@@ -42,19 +37,15 @@ char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВО�
                 --currentLine;
             } else if (isalpha(c)) {
                 *outputLine_pointer = *currentLine;
-                ++outputLine_pointer;
-                *outputLine_pointer = ' ';
-                ++outputLine_pointer;
-                ++currentLine;
-                --currentLine;
+                *(outputLine_pointer + 1) = ' ';
+                outputLine_pointer = outputLine_pointer + 2;
             } else if (is_operator(c)) {
                 while (1) {
                     sc = pop_char();
                     if (is_operator(sc) && (prioritization(c)) <= (prioritization(sc))) {
                         *outputLine_pointer = sc;
-                        ++outputLine_pointer;
-                        *outputLine_pointer = ' ';
-                        ++outputLine_pointer;
+                        *(outputLine_pointer + 1) = ' ';
+                        outputLine_pointer = outputLine_pointer + 2;
                     } else break;
                 }
                 push_char(sc);
@@ -68,9 +59,8 @@ char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВО�
                         break;
                     } else {
                         *outputLine_pointer = sc;
-                        ++outputLine_pointer;
-                        *outputLine_pointer = ' ';
-                        ++outputLine_pointer;
+                        *(outputLine_pointer + 1) = ' ';
+                        outputLine_pointer = outputLine_pointer + 2;
                     }
                 }
             }
@@ -80,11 +70,10 @@ char *shunting_yard(const char *line) { // (АЛГОРИТМ СОРТИРОВО�
     while (!isEmpty_char()) {
         sc = pop_char();
         *outputLine_pointer = sc;
-        ++outputLine_pointer;
-        *outputLine_pointer = ' ';
-        ++outputLine_pointer;
+        *(outputLine_pointer + 1) = ' ';
+        outputLine_pointer = outputLine_pointer + 2;
     }
-    return &outputLine[0];
+    return out;
 }
 
 int calculate_RPN(char *line) { //(АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫРАЖЕНИЙ ОБРАТНОЙ ПОЛЬСКОЙ ЗАПСИИ)
@@ -95,7 +84,7 @@ int calculate_RPN(char *line) { //(АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫР�
     while (*line != 0) {
         if (*line == ' ') ++line;
         if (isalpha(*line)) {
-            type = ISVAR;
+            type = IS_VARIABLE;
         } else if (isdigit(*line)) {
             unsigned int i = 0;
             while (isdigit(*line)) {
@@ -103,13 +92,13 @@ int calculate_RPN(char *line) { //(АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫР�
                 ++line;
                 ++i;
             }
-            type = ISNUMBER;
+            type = IS_NUMBER;
         } else type = *line;
         switch (type) {
-            case ISVAR:
+            case IS_VARIABLE:
                 push(getValue(*line));
                 break;
-            case ISNUMBER:
+            case IS_NUMBER:
                 push(atoi(newChar));
                 memset(newChar, 0, sizeof(newChar));
                 break;
