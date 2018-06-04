@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "stdio.h"
 #include "lexer.h"
+#include "interpreter.h"
 
 #define MAX_LENGTH 254
 #define MAX_LINES 100
@@ -13,8 +14,6 @@ int labels[100] = {0};
 int global_Index; // индекс main loop
 
 unsigned int i;
-
-void safeLabels();
 
 void execute(char *fileName) { // построчное считывание из файла и запись двумерный массив
     FILE *file;

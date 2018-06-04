@@ -1,3 +1,6 @@
+#ifndef STACK_H
+#define STACK_H
+
 void push(int number);
 
 int pop(void);
@@ -11,3 +14,6 @@ void push_goSub(int number);
 int pop_goSub(void);
 
 int isEmpty_char(void);
+
+
+#endif

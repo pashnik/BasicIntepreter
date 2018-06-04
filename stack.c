@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "stack.h"
 
 #define STACK_VAL 100 // макисмальная длинна стека
 

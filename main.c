@@ -1,4 +1,4 @@
-void execute(char *fileName);
+#include "interpreter.h"
 
 int main(void) {
     char *name = "/Users/air/ClionProjects/BasicIntepreter/newFile.txt";
