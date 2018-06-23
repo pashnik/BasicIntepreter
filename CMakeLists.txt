@@ -4,4 +4,4 @@ project(BasicIntepreter C)
 set(CMAKE_C_STANDARD 11)
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
 
-add_executable(BasicIntepreter main.c lexer.c interpreter.c arithmetics.c stack.c stack.h lexer.h arithmetics.h interpreter.h)
+add_executable(BasicIntepreter main.c lexer.c executer.c arithmetics.c stack.c stack.h lexer.h arithmetics.h executer.h)

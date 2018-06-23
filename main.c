@@ -1,7 +1,13 @@
-#include "interpreter.h"
+#include <stdlib.h>
+#include "executer.h"
+#include "stdio.h"
 
-int main(void) {
-    char *name = "/Users/air/ClionProjects/BasicIntepreter/newFile.txt";
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        printf("Wrong format!");
+        exit(1);
+    }
+    char *name = argv[1];
     execute(name);
     return 0;
 }

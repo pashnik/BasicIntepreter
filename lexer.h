@@ -9,8 +9,6 @@ void whichCommand(void);
 
 int isSomething(char symbol);
 
-int isGap(char symbol);
-
 int haveCommand(const char *input);
 
 void com_input(void);

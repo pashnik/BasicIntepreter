@@ -17,11 +17,11 @@ char oper; // оператор
 int line_number = 0;
 char tokenContent[100]; // содержание токена (число или команда)
 int variables[26] = {0};
-extern int global_Index;
+extern int globalIndex;
 
 unsigned int getToken(void) {
     if (*token_pointer == '\n' || *token_pointer == '\0') return E_O_L; // провекра на конец строки
-    while (isGap(*token_pointer)) ++token_pointer;
+    while (isspace(*token_pointer)) ++token_pointer;
     if (isdigit(*token_pointer)) { // число
         unsigned int i = 0;
         while (!isSomething(*(token_pointer))) {
@@ -64,11 +64,6 @@ unsigned int getToken(void) {
     return 404; // ошибка
 }
 
-int isGap(char symbol) {  // пробел
-    if (symbol == ' ') return 1;
-    return 0;
-}
-
 int isSomething(char symbol) { // разделители
     if (strchr("()=/*+- \n", symbol) || strchr("", symbol)) return 1;
     return 0;
@@ -92,12 +87,8 @@ void interpret(char *line) {
 
 int haveCommand(const char *input) {
     for (int j = 0; j < 8; ++j) {
-        unsigned int sum = 0;
         char *current_command = commands[j];
-        for (int i = 0; i < strlen(current_command); ++i) {
-            if (input[i] == current_command[i]) sum++;
-        }
-        if (sum == strlen(current_command)) return 1;
+        if (strcmp(current_command, input) == 0) return 1;
     }
     return 0;
 }
@@ -106,17 +97,10 @@ int getValue(char symbol) { // получение значения переме�
     return variables[(int) symbol - 'a'];
 }
 
-int comparison(char *first, const char *second) {
-    for (int i = 0; i < strlen(first); ++i) {
-        if (first[i] != second[i]) return 0;
-    }
-    return 1;
-}
-
 void whichCommand(void) { // определение команды и выполнение действий
     int command = 0;
     for (unsigned int i = 0; i < 8; ++i) {
-        if (comparison(tokenContent, commands[i])) {
+        if (strcmp(tokenContent, commands[i]) == 0) {
             command = i;
             break;
         }
@@ -242,7 +226,7 @@ void com_goto(void) {
     else {
         int gotoIndex = getIndex(atoi(tokenContent));
         if (gotoIndex == -1) perror("Don't");
-        global_Index = gotoIndex - 1;
+        globalIndex = gotoIndex - 1;
     }
 }
 
@@ -252,18 +236,18 @@ void com_goSub() {
     else {
         int goSubIndex = getIndex(atoi(tokenContent));
         if (goSubIndex == -1) perror("NOOOO");
-        global_Index = goSubIndex - 1;
+        globalIndex = goSubIndex - 1;
         push_goSub(getIndex(line_number));
     }
 }
 
 void com_return() {
     int returnedIndex = pop_goSub();
-    global_Index = returnedIndex;
+    globalIndex = returnedIndex;
 }
 
 void com_end(void) {
-    global_Index = 404;
+    exit(0);
 }
 
 int isVarOrDigit(unsigned int currentToken) {

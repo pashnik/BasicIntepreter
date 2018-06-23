@@ -1,5 +1,5 @@
-#ifndef INTERPRETER_H
-#define INTERPRETER_H
+#ifndef EXECUTER_H
+#define EXECUTER_H
 
 void execute(char *fileName);
 
