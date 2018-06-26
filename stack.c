@@ -18,7 +18,7 @@ void push(int number) {
 }
 
 int pop(void) {
-    if (sp > 0) return value[--sp];
+    if (sp >= 0) return value[--sp];
     else perror("Can't pop, Stack is empty");
     return 0;
 }

@@ -3,6 +3,7 @@
 
 void execute(char *fileName);
 
-void safeLabels();
+void safeLabels(int lp);
+
 
 #endif

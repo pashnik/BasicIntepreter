@@ -1,106 +1,88 @@
 #include <ctype.h>
-#include <memory.h>
 #include <stdlib.h>
 #include "stdio.h"
 #include "stack.h"
 #include "arithmetics.h"
-#include "lexer.h"
+#include "token.h"
 
-#define IS_NUMBER '0' // сигнал, что обнаружено число
+#define IS_NUMBER '0'
 #define IS_VARIABLE 'a'
-#define is_operator(c) ((c) == '+' || (c) == '-' || (c) == '/' || (c) == '*' || (c) == '!' || (c) == '%' || (c) == '=')
 
+int getValue(char symbol);
 
-int doArithmetic(char *line) {
-    return calculate_RPN(shunting_yard(line));
+int getArithmeticResult(struct token *tokens) {
+    return calculateRPN(shuntingYard(tokens));
 }
 
-char *shunting_yard(char *line) { // (АЛГОРИТМ СОРТИРОВОЧНОЙ СТАНЦИИ)
-    char outputLine[100] = {0}; // выходная строка
-    char *out = outputLine;
-    char *outputLine_pointer = outputLine;
-    const char *currentLine = line;
+struct token *shuntingYard(struct token *tokens) { // (АЛГОРИТМ СОРТИРОВОЧНОЙ СТАНЦИИ) testing
+    struct token *outTokens = (struct token *) malloc(100 * sizeof(struct token));
+    struct token *outPointer = outTokens;
     char sc;
-    char c;
-    char *strEnd = line + strlen(line);
-    while (currentLine < strEnd) {
-        c = *currentLine;
-        if (c != ' ') {
-            if (isdigit(c)) {
-                while (isdigit(*currentLine)) {
-                    *outputLine_pointer = *currentLine;
-                    ++outputLine_pointer;
-                    ++currentLine;
-                }
-                *outputLine_pointer = ' ';
-                ++outputLine_pointer;
-                --currentLine;
-            } else if (isalpha(c)) {
-                *outputLine_pointer = *currentLine;
-                *(outputLine_pointer + 1) = ' ';
-                outputLine_pointer = outputLine_pointer + 2;
-            } else if (is_operator(c)) {
-                while (1) {
-                    sc = pop_char();
-                    if (is_operator(sc) && (prioritization(c)) <= (prioritization(sc))) {
-                        *outputLine_pointer = sc;
-                        *(outputLine_pointer + 1) = ' ';
-                        outputLine_pointer = outputLine_pointer + 2;
-                    } else break;
-                }
-                push_char(sc);
-                push_char(c);
-            } else if (c == '(') {
-                push_char(c);
-            } else if (c == ')') {
-                while (1) {
-                    sc = pop_char();
-                    if (sc == '(') {
-                        break;
-                    } else {
-                        *outputLine_pointer = sc;
-                        *(outputLine_pointer + 1) = ' ';
-                        outputLine_pointer = outputLine_pointer + 2;
+    while ((*tokens).type != E0L) {
+        if ((*tokens).type == DIGIT) {
+            (*outTokens).type = (*tokens).type;
+            (*outTokens).value = (*tokens).value;
+        } else if ((*tokens).type == VARIABLE) {
+            (*outTokens).type = (*tokens).type;
+            (*outTokens).tokenContent = (*tokens).tokenContent;
+        } else if ((*tokens).type == OPERATOR) {
+            while (1) {
+                sc = pop_char();
+                if (prioritization((*tokens).tokenContent) <= (prioritization(sc))) {
+                    (*outTokens).type = OPERATOR;
+                    (*outTokens).tokenContent = sc;
+                    ++outTokens;
+                } else break;
+            }
+            push_char(sc);
+            push_char((*tokens).tokenContent);
+            --outTokens;
+        } else if ((*tokens).tokenContent == '(') {
+            push_char((*tokens).tokenContent);
+            --outTokens;
+        } else if ((*tokens).tokenContent == ')') {
+            while (1) {
+                sc = pop_char();
+                if (sc == '(') {
+                    if ((*(tokens + 1)).type != E0L) {
+                        --outTokens;
                     }
+                    break;
+                } else {
+                    (*outTokens).type = OPERATOR;
+                    (*outTokens).tokenContent = sc;
+                    ++outTokens;
                 }
             }
         }
-        ++currentLine;
+        ++tokens, ++outTokens;
     }
+    if ((*(outTokens - 1)).tokenContent == '\0') --outTokens;
     while (!isEmpty_char()) {
         sc = pop_char();
-        *outputLine_pointer = sc;
-        *(outputLine_pointer + 1) = ' ';
-        outputLine_pointer = outputLine_pointer + 2;
+        if (sc != '\0') {
+            (*outTokens).type = OPERATOR;
+            (*outTokens).tokenContent = sc;
+            ++outTokens;
+        }
     }
-    return out;
+    (*outTokens).type = E0L;
+    return outPointer;
 }
 
-int calculate_RPN(char *line) { //(АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫРАЖЕНИЙ ОБРАТНОЙ ПОЛЬСКОЙ ЗАПСИИ)
-    char charBuffer[100];
-    char newChar[100] = {0};
+int calculateRPN(struct token *tokens) { //(АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫРАЖЕНИЙ ОБРАТНОЙ ПОЛЬСКОЙ ЗАПСИИ)
     int type;
     int op2 = 0;
-    while (*line != 0) {
-        if (*line == ' ') ++line;
-        if (isalpha(*line)) {
-            type = IS_VARIABLE;
-        } else if (isdigit(*line)) {
-            unsigned int i = 0;
-            while (isdigit(*line)) {
-                newChar[i] = *line;
-                ++line;
-                ++i;
-            }
-            type = IS_NUMBER;
-        } else type = *line;
+    while ((*tokens).type != E0L) {
+        if ((*tokens).type == VARIABLE) type = IS_VARIABLE;
+        else if ((*tokens).type == DIGIT) type = IS_NUMBER;
+        else type = (*tokens).tokenContent;
         switch (type) {
             case IS_VARIABLE:
-                push(getValue(*line));
+                push(getValue((*tokens).tokenContent));
                 break;
             case IS_NUMBER:
-                push(atoi(newChar));
-                memset(newChar, 0, sizeof(newChar));
+                push((*tokens).value);
                 break;
             case '+':
                 push(pop() + pop());
@@ -121,12 +103,12 @@ int calculate_RPN(char *line) { //(АЛГОРИТМ ВЫЧИСЛЕНИЯ ВЫР�
             default:
                 break;
         }
-        ++line;
+        ++tokens;
     }
     return pop();
 }
 
-int prioritization(const char symbol) {
+int prioritization(char symbol) {
     switch (symbol) {
         case '*':
         case '/':
@@ -138,17 +120,4 @@ int prioritization(const char symbol) {
             break;
     }
     return 0;
-}
-
-int getComparisonSign(char symbol) {
-    switch (symbol) {
-        case '>':
-            return 1;
-        case '<':
-            return 2;
-        case '=':
-            return 4;
-        default:
-            return -1;
-    }
 }

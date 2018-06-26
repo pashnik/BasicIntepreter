@@ -3,10 +3,8 @@
 
 int prioritization(char symbol);
 
-char *shunting_yard(char *line);
+struct token *shuntingYard(struct token *tokens);
 
-int calculate_RPN(char *line);
+int calculateRPN(struct token *tokens);
 
-int doArithmetic(char *line);
-
-#endif
+#endif ARITHMETICS_H

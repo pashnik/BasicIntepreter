@@ -1,7 +1,7 @@
 10 let a = 8
 11 let b = 6
 12 input c
-14 let d = (12 + (a+b)/7 + 12/(a-b))*6
+14 let d = (12 + (a+b)/7 + 12/(a-b))* 6
 14 print d " " "Правильно: 120"
 16 goto 18
 17 print "Неверено"
