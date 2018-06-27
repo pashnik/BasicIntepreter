@@ -7,6 +7,7 @@
 
 #define IS_NUMBER '0'
 #define IS_VARIABLE 'a'
+#define IS_ALLOWABLE(number) ((number) > -32768 && (number) < 32767)
 
 int getValue(char symbol);
 
@@ -105,7 +106,9 @@ int calculateRPN(struct token *tokens) { //(АЛГОРИТМ ВЫЧИСЛЕНИ�
         }
         ++tokens;
     }
-    return popNumber();
+    int number = popNumber();
+    if (!IS_ALLOWABLE(number)) errorExiting(RANGE_ERR);
+    return number;
 }
 
 int prioritization(char symbol) {

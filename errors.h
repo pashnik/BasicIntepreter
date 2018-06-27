@@ -11,6 +11,7 @@
 #define EMPTY_STACK "Can't pop, stack is empty"
 #define DIV_ZERO "Division on zero"
 #define BASIC_LN "Number of lines should be in ascending order"
+#define RANGE_ERR "Number has not valid range"
 
 void errorExiting(char *errorType);
 

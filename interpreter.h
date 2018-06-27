@@ -29,6 +29,10 @@ int getResult(int intermediate, int firstValue, int secondValue);
 
 int getValueVarOrDigit(struct token currentToken);
 
+void setValue(char symbol, int value);
+
 int variables[26] = {0};
+
+int mainLoop;
 
 #endif BASICINTEPRETER

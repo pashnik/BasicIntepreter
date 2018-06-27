@@ -8,14 +8,13 @@
 
 #define MAX_LENGTH 254
 #define M_LINE 100
+#define IS_ALLOWABLE_LINE(line) ((line) <= 32767)
 
 void interpret(char **loadedProgram);
 
 char **loadedProgram;
 
-int *labels;
-
-int lp = 0;
+int *labels, lp = 0;
 
 void execute(char *fileName) {
     unsigned int minLines = M_LINE;
@@ -34,6 +33,7 @@ void execute(char *fileName) {
         }
         loadedProgram[lp] = strPointer;
         ++lp;
+        if (lp > MAX_LENGTH) errorExiting(RANGE_ERR);
     }
     labels = calloc(minLines, sizeof(int));
     safeLabels(lp);
@@ -45,6 +45,7 @@ void safeLabels(const int lp) {
         int currentLineNumber = getTokens(loadedProgram[i])[0].value;
         labels[i] = currentLineNumber;
         if (labels[i] < labels[i - 1]) errorExiting(BASIC_LN);
+        if (!IS_ALLOWABLE_LINE(labels[i])) errorExiting(RANGE_ERR);
     }
 }
 
@@ -55,7 +56,3 @@ int *getLabels(void) {
 int *getTotalLines(void) {
     return &lp;
 }
-
-
-
-

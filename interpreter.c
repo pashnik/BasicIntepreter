@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <memory.h>
+#include "ctype.h"
 #include "token.h"
 #include "lexer.h"
 #include "errors.h"
@@ -13,8 +14,6 @@ int getArithmeticResult(struct token *tokens);
 int *getTotalLines(void);
 
 int *getLabels(void);
-
-int mainLoop;
 
 void interpret(char **loadedProgram) {
     int totalLines = *getTotalLines();
@@ -69,7 +68,7 @@ void commandInput(struct token *tokens) {
         if ((*tokens).type != VARIABLE) errorExiting(SYN_ERR);
         int scannedValue;
         scanf("%d", &scannedValue);
-        variables[(*tokens).tokenContent - 'a'] = scannedValue;
+        setValue((*tokens).tokenContent, scannedValue);
         ++tokens;
     } while ((*tokens).type != E0L);
 }
@@ -85,7 +84,7 @@ void commandPrint(struct token *tokens) {
             if ((*tokens).type == NEXT) printf("\n");
             else {
                 if ((*tokens).type == VARIABLE)
-                    printf("%d", variables[(*tokens).tokenContent - 'a']);
+                    printf("%d", getValue((*tokens).tokenContent));
                 else errorExiting(SYN_ERR);
             }
         }
@@ -95,7 +94,7 @@ void commandPrint(struct token *tokens) {
 
 void commandLet(struct token *tokens) {
     if ((*tokens).type != VARIABLE || (*(tokens + 1)).tokenContent != '=') errorExiting(SYN_ERR);
-    variables[(*tokens).tokenContent - 'a'] = getArithmeticResult(tokens + 2);
+    setValue((*tokens).tokenContent, getArithmeticResult(tokens + 2));
 }
 
 void commandIf(struct token *tokens) {
@@ -145,7 +144,11 @@ void commandReturn() {
 }
 
 int getValue(char symbol) {
-    return variables[(int) symbol - 'a'];
+    return variables[tolower(symbol) - 'a'];
+}
+
+void setValue(char symbol, int value) {
+    variables[tolower(symbol) - 'a'] = value;
 }
 
 int getIndex(int lineNumber, int currentLines) { // binary search

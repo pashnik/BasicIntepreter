@@ -27,7 +27,12 @@ struct token *getTokens(char *line) {
     char commandBuffer[7] = {0};
     char digitBuffer[5] = {0};
     while (*line != '\0' && *line != '\n') {
+        int unaryMinus = 1;
         while (isspace(*line)) ++line;
+        if (*line == '-' && isdigit(*(line + 1))) {
+            unaryMinus = -1;
+            ++line;
+        }
         if (isdigit(*line)) {
             unsigned int dp = 0;
             while (!isDelimiter(*line) && !isalpha(*line)) {
@@ -36,7 +41,7 @@ struct token *getTokens(char *line) {
                 ++dp;
             }
             tokens[tp].type = DIGIT;
-            tokens[tp].value = atoi(digitBuffer);
+            tokens[tp].value = unaryMinus * atoi(digitBuffer);
             --line;
             memset(digitBuffer, 0, sizeof(digitBuffer));
         } else {
