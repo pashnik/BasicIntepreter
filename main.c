@@ -6,6 +6,4 @@ int main(int argc, char **argv) {
     char *name = argv[1];
     execute(name);
     return 0;
-
 }
-

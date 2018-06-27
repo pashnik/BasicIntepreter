@@ -1,50 +1,50 @@
-#include <stdio.h>
 #include "stack.h"
+#include "errors.h"
 
-#define STACK_VAL 100 // макисмальная длинна стека
+#define STACK_VAL 100 // stack length
 
-int sp = 0;
-int value[STACK_VAL]; // стек для int
+int vsp = 0;
+int value[STACK_VAL]; // numbers stack
 
-int sp_char = 0;
-char char_value[STACK_VAL]; // стек для char
+int osp = 0;
+char operands[STACK_VAL]; // operands stack
 
-int sp_goSub = 0;
-int goSub_value[5]; // уровень вложенности
+int nsp = 0;
+int nestLevel[5]; // nesting level
 
-void push(int number) {
-    if (sp < STACK_VAL) value[sp++] = number;
-    else perror("Can't push, Stack is full");
+void pushNumber(int number) {
+    if (vsp < STACK_VAL) value[vsp++] = number;
+    else errorExiting(FULL_STACK);
 }
 
-int pop(void) {
-    if (sp >= 0) return value[--sp];
-    else perror("Can't pop, Stack is empty");
+int popNumber(void) {
+    if (vsp >= 0) return value[--vsp];
+    else errorExiting(EMPTY_STACK);
     return 0;
 }
 
-void push_char(char symbol) {
-    if (sp_char < STACK_VAL) char_value[sp_char++] = symbol;
-    else perror("Can't push, Stack is full");
+void pushOperand(char symbol) {
+    if (osp < STACK_VAL) operands[osp++] = symbol;
+    else errorExiting(FULL_STACK);
 }
 
-char pop_char(void) {
-    if (sp_char > 0) return char_value[--sp_char];
+char popOperand(void) {
+    if (osp > 0) return operands[--osp];
     return 0;
 }
 
-int isEmpty_char(void) {
-    if (sp_char > 0) return 0;
+int isEmpty(void) {
+    if (osp > 0) return 0;
     else return 1;
 }
 
-void push_goSub(int number) {
-    if (sp_goSub < 5) goSub_value[sp_goSub++] = number;
-    else perror("Can't push, Stack is full");
+void pushCall(int number) {
+    if (nsp < 5) nestLevel[nsp++] = number;
+    else errorExiting(FULL_STACK);
 }
 
-int pop_goSub(void) {
-    if (sp_goSub > 0) return goSub_value[--sp_goSub];
-    else perror("Can't pop, Stack is empty");
+int popCall(void) {
+    if (nsp > 0) return nestLevel[--nsp];
+    else errorExiting(EMPTY_STACK);
     return 0;
 }

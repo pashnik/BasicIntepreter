@@ -135,12 +135,12 @@ void commandGosub(struct token *tokens) {
     if ((*tokens).type != DIGIT) errorExiting(SYN_ERR);
     int goSubIndex = getIndex((*tokens).value, *getTotalLines());
     if (goSubIndex == -1) errorExiting(GO_ERR);
-    push_goSub(mainLoop);
+    pushCall(mainLoop);
     mainLoop = goSubIndex - 1;
 }
 
 void commandReturn() {
-    int returnedIndex = pop_goSub();
+    int returnedIndex = popCall();
     mainLoop = returnedIndex;
 }
 

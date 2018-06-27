@@ -1,9 +1,9 @@
 #include <ctype.h>
 #include <stdlib.h>
-#include "stdio.h"
 #include "stack.h"
 #include "arithmetics.h"
 #include "token.h"
+#include "errors.h"
 
 #define IS_NUMBER '0'
 #define IS_VARIABLE 'a'
@@ -27,22 +27,22 @@ struct token *shuntingYard(struct token *tokens) { // (АЛГОРИТМ СОРТ
             (*outTokens).tokenContent = (*tokens).tokenContent;
         } else if ((*tokens).type == OPERATOR) {
             while (1) {
-                sc = pop_char();
+                sc = popOperand();
                 if (prioritization((*tokens).tokenContent) <= (prioritization(sc))) {
                     (*outTokens).type = OPERATOR;
                     (*outTokens).tokenContent = sc;
                     ++outTokens;
                 } else break;
             }
-            push_char(sc);
-            push_char((*tokens).tokenContent);
+            pushOperand(sc);
+            pushOperand((*tokens).tokenContent);
             --outTokens;
         } else if ((*tokens).tokenContent == '(') {
-            push_char((*tokens).tokenContent);
+            pushOperand((*tokens).tokenContent);
             --outTokens;
         } else if ((*tokens).tokenContent == ')') {
             while (1) {
-                sc = pop_char();
+                sc = popOperand();
                 if (sc == '(') {
                     if ((*(tokens + 1)).type != E0L) {
                         --outTokens;
@@ -58,8 +58,8 @@ struct token *shuntingYard(struct token *tokens) { // (АЛГОРИТМ СОРТ
         ++tokens, ++outTokens;
     }
     if ((*(outTokens - 1)).tokenContent == '\0') --outTokens;
-    while (!isEmpty_char()) {
-        sc = pop_char();
+    while (!isEmpty()) {
+        sc = popOperand();
         if (sc != '\0') {
             (*outTokens).type = OPERATOR;
             (*outTokens).tokenContent = sc;
@@ -79,33 +79,33 @@ int calculateRPN(struct token *tokens) { //(АЛГОРИТМ ВЫЧИСЛЕНИ�
         else type = (*tokens).tokenContent;
         switch (type) {
             case IS_VARIABLE:
-                push(getValue((*tokens).tokenContent));
+                pushNumber(getValue((*tokens).tokenContent));
                 break;
             case IS_NUMBER:
-                push((*tokens).value);
+                pushNumber((*tokens).value);
                 break;
             case '+':
-                push(pop() + pop());
+                pushNumber(popNumber() + popNumber());
                 break;
             case '*':
-                push(pop() * pop());
+                pushNumber(popNumber() * popNumber());
                 break;
             case '-':
-                op2 = pop();
-                push(pop() - op2);
+                op2 = popNumber();
+                pushNumber(popNumber() - op2);
                 break;
             case '/':
-                op2 = pop();
+                op2 = popNumber();
                 if (op2 != 0) {
-                    push(pop() / op2);
-                } else perror("Div on zero");
+                    pushNumber(popNumber() / op2);
+                } else errorExiting(DIV_ZERO);
                 break;
             default:
                 break;
         }
         ++tokens;
     }
-    return pop();
+    return popNumber();
 }
 
 int prioritization(char symbol) {

@@ -7,4 +7,4 @@ struct token *shuntingYard(struct token *tokens);
 
 int calculateRPN(struct token *tokens);
 
-#endif ARITHMETICS_H
+#endif

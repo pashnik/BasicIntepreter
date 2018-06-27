@@ -1,19 +1,19 @@
 #ifndef STACK_H
 #define STACK_H
 
-void push(int number);
+void pushNumber(int number);
 
-int pop(void);
+int popNumber(void);
 
-char pop_char(void);
+char popOperand(void);
 
-void push_char(char symbol);
+void pushOperand(char symbol);
 
-void push_goSub(int number);
+void pushCall(int number);
 
-int pop_goSub(void);
+int popCall(void);
 
-int isEmpty_char(void);
+int isEmpty(void);
 
 
 #endif

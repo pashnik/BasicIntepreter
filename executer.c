@@ -6,7 +6,6 @@
 #include "lexer.h"
 #include "token.h"
 
-
 #define MAX_LENGTH 254
 #define M_LINE 100
 
@@ -45,6 +44,7 @@ void safeLabels(const int lp) {
     for (int i = 0; i < lp; ++i) {
         int currentLineNumber = getTokens(loadedProgram[i])[0].value;
         labels[i] = currentLineNumber;
+        if (labels[i] < labels[i - 1]) errorExiting(BASIC_LN);
     }
 }
 
