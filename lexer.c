@@ -10,14 +10,14 @@ struct command {
     char name[7];
     enum commandType type;
 } commands[] = {
-        "input", INPUT,
-        "print", PRINT,
-        "let", LET,
-        "if", IF,
-        "goto", GOTO,
-        "end", END,
-        "gosub", GOSUB,
-        "return", RETURN,
+        {"input", INPUT},
+        {"print", PRINT},
+        {"let", LET},
+        {"if", IF},
+        {"goto", GOTO},
+        {"end", END},
+        {"gosub", GOSUB},
+        {"return", RETURN},
 };
 
 struct token *getTokens(char *line) {

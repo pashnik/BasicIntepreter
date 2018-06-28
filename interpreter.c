@@ -59,7 +59,7 @@ void whichCommand(int commandType, struct token *tokens) {
 void commandInput(struct token *tokens) {
     do {
         if ((*tokens).type == QUOTE) {
-            for (int i = 0; i < strlen((*tokens).quotesLine); ++i) {
+            for (int i = 0; i < (int) strlen((*tokens).quotesLine); ++i) {
                 printf("%c", (*tokens).quotesLine[i]);
             }
             memset((*tokens).quotesLine, 0, sizeof((*tokens).quotesLine));
@@ -76,7 +76,7 @@ void commandInput(struct token *tokens) {
 void commandPrint(struct token *tokens) {
     do {
         if ((*tokens).type == QUOTE) {
-            for (int i = 0; i < strlen((*tokens).quotesLine); ++i) {
+            for (int i = 0; i < (int) strlen((*tokens).quotesLine); ++i) {
                 printf("%c", (*tokens).quotesLine[i]);
             }
             memset((*tokens).quotesLine, 0, sizeof((*tokens).quotesLine));
