@@ -7,14 +7,15 @@
 #include "token.h"
 
 #define MAX_LENGTH 254
-#define M_LINE 100
+#define M_LINE 60
 #define IS_ALLOWABLE_LINE(line) ((line) <= 32767)
 
 void interpret(char **loadedProgram);
 
 char **loadedProgram;
 
-int *labels, lp = 0;
+int *labels;
+unsigned int lp = 0;
 
 void execute(char *fileName) {
     unsigned int minLines = M_LINE;
@@ -53,6 +54,6 @@ int *getLabels(void) {
     return labels;
 }
 
-int *getTotalLines(void) {
+unsigned int *getTotalLines(void) {
     return &lp;
 }
