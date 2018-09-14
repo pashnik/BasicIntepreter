@@ -83,8 +83,10 @@ void commandPrint(struct token *tokens) {
         } else {
             if ((*tokens).type == NEXT) printf("\n");
             else {
-                if ((*tokens).type == VARIABLE)
-                    printf("%d", getValue((*tokens).tokenContent));
+                if ((*tokens).type == VARIABLE) {
+                    printf("%d", getArithmeticResult(tokens));
+                    (*(tokens + 1)).type = E0L;
+                }
                 else errorExiting(SYN_ERR);
             }
         }

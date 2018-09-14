@@ -10,7 +10,7 @@ int osp = 0;
 char operands[STACK_VAL]; // operands stack
 
 int nsp = 0;
-int nestLevel[5]; // nesting level
+int nestLevel[5]; // nesting 0level
 
 void pushNumber(int number) {
     if (vsp < STACK_VAL) value[vsp++] = number;

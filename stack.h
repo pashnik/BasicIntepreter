@@ -15,5 +15,4 @@ int popCall(void);
 
 int isEmpty(void);
 
-
 #endif

@@ -1,5 +1,5 @@
-#ifndef BASICINTEPRETER
-#define BASICINTEPRETER
+#ifndef BASIC_INTEPRETER
+#define BASIC_INTEPRETER
 
 void whichCommand(int commandType, struct token *tokens);
 
@@ -35,4 +35,4 @@ int variables[26] = {0};
 
 int mainLoop;
 
-#endif BASICINTEPRETER
+#endif BASIC_INTEPRETER
